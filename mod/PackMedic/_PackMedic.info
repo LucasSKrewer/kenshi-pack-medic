@@ -3,7 +3,9 @@
   <id>3830958586</id>
   <mod>PackMedic</mod>
   <title>Pack Medic - Medics Use Kits From Pack Animals (RE_Kenshi)</title>
-  <tags />
+  <tags>
+    <string>Gameplay</string>
+  </tags>
   <visibility>0</visibility>
-  <lastUpdate>2026-10-31T13:00:43.1785329-03:00</lastUpdate>
+  <lastUpdate>2026-10-31T13:04:17.8358013-03:00</lastUpdate>
 </ModData>
