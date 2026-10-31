@@ -1,5 +1,5 @@
 // Pack Medic — plugin RE_Kenshi.
-// Quando o médico (tarefa Médico) ou o reparador de robôs do grupo fica sem kit e alguém do grupo
+// Quando o médico (tarefa Médico), o reparador de robôs ou quem põe talas fica sem kit e alguém do grupo
 // precisa de cuidado, o mod passa um kit do animal de carga mais próximo pra ele.
 //
 // Hooks:
@@ -8,6 +8,7 @@
 #include <Debug.h>
 #include <core/Functions.h>
 
+#include <kenshi/CharStats.h>
 #include <kenshi/Character.h>
 #include <kenshi/Enums.h>
 #include <kenshi/GameWorld.h>
@@ -28,24 +29,35 @@
 
 namespace
 {
-	const char* const VERSION = "1.0.0";
+	const char* const VERSION = "1.1.0";
 
 	bool debug = false;
 	float maxRange = 1000.0f; // @range: distância máxima médico ↔ animal (unidades do mundo)
 	DWORD interval = 1000;    // @interval: ms entre conferências
 	DWORD lastCheck = 0;
 
-	// Tarefa permanente -> função do kit que ela consome
+	// Como medir se alguém do grupo precisa do kit
+	enum NeedKind
+	{
+		NEED_FIRSTAID,   // scoreFirstAidNeed(false)
+		NEED_ROBOTAID,   // scoreFirstAidNeed(true)
+		NEED_SPLINT      // scoreJuryRigNeed(habilidade de medicina de quem põe a tala)
+	};
+
+	// Tarefa permanente -> função do kit que ela consome. `alt`: outra tarefa que também vale.
+	// Talas: o jogo não deixa "Aplicar talas" virar tarefa fixa pelo menu, então vale o Médico.
 	struct Need
 	{
 		TaskType job;
+		TaskType alt;
 		ItemFunction kit;
-		bool robot; // scoreFirstAidNeed(robotAid)
+		NeedKind kind;
 		const char* label;
 	};
 	const Need NEEDS[] = {
-		{ JOB_MEDIC, ITEM_FIRSTAID, false, "first aid kit" },
-		{ JOB_REPAIR_ROBOT, ITEM_ROBOTREPAIR, true, "robot repair kit" },
+		{ JOB_MEDIC, JOB_MEDIC, ITEM_FIRSTAID, NEED_FIRSTAID, "first aid kit" },
+		{ JOB_REPAIR_ROBOT, JOB_REPAIR_ROBOT, ITEM_ROBOTREPAIR, NEED_ROBOTAID, "robot repair kit" },
+		{ JOB_MEDIC, SPLINT_JOB, ITEM_MEDRIGGING, NEED_SPLINT, "splint kit" },
 	};
 	const int NEED_COUNT = sizeof(NEEDS) / sizeof(NEEDS[0]);
 
@@ -163,12 +175,31 @@ namespace
 		}
 	}
 
-	bool someoneNeeds(lektor<Character*>& squad, bool robot)
+	float needScore(Character* patient, const Need& need, Character* medic)
+	{
+		if (need.kind == NEED_SPLINT)
+		{
+			CharStats* st = medic->getStats();
+			return patient->medical.scoreJuryRigNeed(st ? st->medic : 0.0f);
+		}
+		return patient->medical.scoreFirstAidNeed(need.kind == NEED_ROBOTAID);
+	}
+
+	bool someoneNeeds(lektor<Character*>& squad, const Need& need, Character* medic)
 	{
 		for (size_t i = 0; i < squad.size(); ++i)
 		{
 			Character* c = squad[i];
-			if (c && !c->isDead() && c->medical.scoreFirstAidNeed(robot) > 0.0f)
+			if (!c || c->isDead())
+				continue;
+			float score = needScore(c, need, medic);
+			if (debug && need.kind == NEED_SPLINT && score != 0.0f)
+			{
+				std::ostringstream o;
+				o << "  " << c->getName() << " splint need " << score;
+				dbg(o.str());
+			}
+			if (score > 0.0f)
 				return true;
 		}
 		return false;
@@ -198,10 +229,23 @@ namespace
 	void supply(Character* medic, const Need& need, lektor<Character*>& squad)
 	{
 		Inventory* own = NULL;
-		if (findKitOn(medic, need.kit, own))
+		Item* ownKit = findKitOn(medic, need.kit, own);
+		if (debug && need.kind == NEED_SPLINT)
+		{
+			CharStats* st = medic->getStats();
+			std::ostringstream o;
+			o << medic->getName() << " (splints), medic skill " << (st ? st->medic : 0.0f)
+				<< (ownKit ? ", carries " + ownKit->getName() : ", no splint kit");
+			dbg(o.str());
+		}
+		if (ownKit)
 			return;
-		if (!someoneNeeds(squad, need.robot))
+		if (!someoneNeeds(squad, need, medic))
+		{
+			if (need.kind == NEED_SPLINT)
+				dbg("  nobody needs a splint");
 			return;
+		}
 
 		Ogre::Vector3 pos = medic->getPosition();
 		Character* bestAnimal = NULL;
@@ -255,6 +299,25 @@ namespace
 		}
 	}
 
+	// @debug: lista as tarefas permanentes de cada personagem quando mudam (número do TaskType)
+	std::map<std::string, std::string> lastJobs;
+	void dumpJobs(Character* c)
+	{
+		std::ostringstream o;
+		int n = c->getPermajobCount();
+		for (int i = 0; i < n; ++i)
+			o << (i ? ", " : "") << (int)c->getPermajob(i);
+		std::string jobs = o.str();
+		std::string& last = lastJobs[c->getName()];
+		if (last == jobs)
+			return;
+		last = jobs;
+		std::ostringstream m;
+		m << c->getName() << " jobs: [" << jobs << "] (medic " << (int)JOB_MEDIC << ", robot "
+			<< (int)JOB_REPAIR_ROBOT << ", splint " << (int)SPLINT_JOB << ")";
+		dbg(m.str());
+	}
+
 	void check()
 	{
 		if (!ou || !ou->player)
@@ -265,8 +328,10 @@ namespace
 			Character* c = squad[i];
 			if (!awake(c) || c->isAnimal())
 				continue;
+			if (debug)
+				dumpJobs(c);
 			for (int n = 0; n < NEED_COUNT; ++n)
-				if (hasJob(c, NEEDS[n].job))
+				if (hasJob(c, NEEDS[n].job) || hasJob(c, NEEDS[n].alt))
 					supply(c, NEEDS[n], squad);
 		}
 	}

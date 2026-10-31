@@ -9,15 +9,17 @@ A small [RE_Kenshi](https://www.nexusmods.com/kenshi/mods/847) plugin for Kenshi
 Once per second the mod looks at your squad. For each character with the **Medic** or **Repair Robots** job:
 
 1. If they have no kit of the right kind (in their inventory or in the backpack they wear), and
-2. someone in the squad needs first aid (or robot repair),
+2. someone in the squad needs first aid, a splint or robot repair,
 3. the nearest pack animal in the same squad that carries a kit hands **one** over — the best one it has, taken from its inventory or its backpack.
 
 The character goes back to healing on their own. If the kit doesn't fit in their inventory, it stays on the animal.
 
 | Job | Kit |
 |---|---|
-| Medic | first aid kits |
+| Medic | first aid kits and splint kits |
 | Repair Robots | robot repair kits |
+
+Splint kits go to Medics because the game doesn't let "Splint Injuries" become a permanent job (idea by Meloo on the Workshop).
 
 Nothing happens while nobody is hurt, so a medic who also works a medical bench won't drain your garru into a crate.
 

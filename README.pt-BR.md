@@ -9,15 +9,17 @@ Um plugin [RE_Kenshi](https://www.nexusmods.com/kenshi/mods/847) pequeno para Ke
 Uma vez por segundo o mod olha o grupo. Para cada personagem com a tarefa **Médico** ou **Reparar robôs**:
 
 1. se ele não tem kit do tipo certo (no inventário ou na mochila que está usando), e
-2. alguém do grupo precisa de primeiros socorros (ou de reparo de robô),
+2. alguém do grupo precisa de primeiros socorros, de tala ou de reparo de robô,
 3. o animal de carga mais próximo do mesmo grupo que tem kit entrega **um** — o melhor que tiver, do inventário ou da mochila dele.
 
 O personagem volta a curar sozinho. Se o kit não couber no inventário dele, fica no animal.
 
 | Tarefa | Kit |
 |---|---|
-| Médico | kits de primeiros socorros |
+| Médico | kits de primeiros socorros e kits de talas |
 | Reparar robôs | kits de reparo de robô |
+
+O kit de talas vai pro Médico porque o jogo não deixa "Aplicar talas" virar tarefa fixa (ideia do Meloo na Workshop).
 
 Nada acontece enquanto ninguém está ferido, então um médico que também trabalha na mesa médica não esvazia o garru no baú.
 

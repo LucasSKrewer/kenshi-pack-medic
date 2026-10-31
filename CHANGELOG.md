@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.1.0] — 2026-10-31
+
+- Medics also take a **splint kit** from the pack animal when they have none and someone in the squad needs a splint. The game doesn't let "Splint Injuries" become a permanent job, so it goes with the Medic job. Idea by Meloo on the Steam Workshop.
+- `@debug` also lists each character's job ids and the splint check.
+
 ## [1.0.0] — 2026-10-31
 
 First release.
