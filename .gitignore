@@ -1,0 +1,9 @@
+build/
+*.dll
+*.pdb
+*.lib
+*.exp
+*.iobj
+*.ipdb
+.vs/
+*.user

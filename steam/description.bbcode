@@ -1,0 +1,52 @@
+[h1]Pack Medic[/h1]
+Your medic ran out of first aid kits in the middle of a fight, and the garru standing right next to them has fifty in its backpack. Not anymore: [b]medics take a kit from the nearest pack animal and keep healing[/b].
+
+[h2]⚠️ REQUIRES RE_KENSHI[/h2]
+This is an [b]RE_Kenshi plugin[/b] (a DLL). Without RE_Kenshi it does nothing.
+[list]
+[*][b][url=https://www.nexusmods.com/kenshi/mods/847]RE_Kenshi v0.3.5 or newer[/url][/b] ([url=https://github.com/BFrizzleFoShizzle/RE_Kenshi/releases]GitHub[/url]) — install it first, then subscribe here and enable [b]PackMedic[/b] in the launcher.
+[/list]
+
+[h2]How it works[/h2]
+Once per second the mod checks your squad. For every character with the [b]Medic[/b] or [b]Repair Robots[/b] job:
+[list]
+[*]if they have no kit of the right kind (in their inventory or the backpack they wear),
+[*]and someone in the squad needs first aid or robot repair,
+[*]the nearest pack animal in the same squad hands over [b]one[/b] kit — the best one it carries, from its inventory or its backpack.
+[/list]
+They go right back to healing on their own. If the kit doesn't fit in their inventory, it stays on the animal.
+[list]
+[*][b]Medic[/b] → first aid kits
+[*][b]Repair Robots[/b] → robot repair kits (skeleton repair kits)
+[/list]
+Nothing happens while nobody is hurt, so a medic who also works a medical bench won't empty your garru into a crate.
+
+[h2]Settings[/h2]
+[i]Kenshi\mods\PackMedic\settings.txt[/i] (or the Workshop folder):
+[list]
+[*][b]@range[/b] — max distance between the medic and the animal (default 1000; about 30 is standing side by side).
+[*][b]@interval[/b] — how often the squad is checked, in milliseconds (default 1000).
+[*][b]@debug[/b] — 1 writes every step to [i]RE_Kenshi_log.txt[/i].
+[/list]
+
+[h2]Compatibility[/h2]
+[list]
+[*]Single-player.
+[*]Doesn't change any game data, so load order doesn't matter. Works with Genesis and backpack mods.
+[*]Safe to add or remove mid-game: it stores nothing in your save.
+[/list]
+
+[h2]Open source[/h2]
+Source code, issues and changelog on GitHub: [url=https://github.com/LucasSKrewer/kenshi-pack-medic]github.com/LucasSKrewer/kenshi-pack-medic[/url]
+Licensed [b]GPLv3[/b]. ⭐ [b]If you like it, leave a like here and a star on GitHub[/b]!
+Also by me: [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3809336824]Kenshi Achievements[/url] — kill count per character and achievements.
+
+[h2]Credits[/h2]
+[list]
+[*][url=https://github.com/BFrizzleFoShizzle]BFrizzleFoShizzle[/url] — RE_Kenshi and KenshiLib.
+[/list]
+
+[hr][/hr]
+[h2]🇧🇷 Português[/h2]
+Quando o médico fica sem kit no meio da briga, ele [b]pega um do animal de carga mais próximo[/b] (inventário ou mochila) e continua curando. Vale também pra quem tem a tarefa [b]Reparar robôs[/b], com kits de reparo de esqueleto.
+[b]Precisa do [url=https://www.nexusmods.com/kenshi/mods/847]RE_Kenshi v0.3.5+[/url][/b]. Código no [url=https://github.com/LucasSKrewer/kenshi-pack-medic]GitHub[/url] — se curtir, deixa um like e uma ⭐!

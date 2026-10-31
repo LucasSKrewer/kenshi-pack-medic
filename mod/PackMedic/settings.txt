@@ -1,0 +1,10 @@
+Pack Medic settings. Lines starting with @ are read by the mod; everything else is ignored.
+
+Max distance between the medic and the pack animal (world units).
+@range = 1000
+
+How often the squad is checked, in milliseconds.
+@interval = 1000
+
+Writes every step to RE_Kenshi_log.txt (for testing).
+@debug = 0
