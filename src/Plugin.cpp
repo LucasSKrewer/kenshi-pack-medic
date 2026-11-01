@@ -185,8 +185,13 @@ namespace
 		return patient->medical.scoreFirstAidNeed(need.kind == NEED_ROBOTAID);
 	}
 
-	bool someoneNeeds(lektor<Character*>& squad, const Need& need, Character* medic)
+	// Quem do grupo precisa do kit; o mais perto do médico. Com `inRange`, só até @range dele
+	// (playerCharacters tem todos os esquadrões, inclusive os da base).
+	Character* findPatient(lektor<Character*>& squad, const Need& need, Character* medic, bool inRange)
 	{
+		Ogre::Vector3 pos = medic->getPosition();
+		Character* best = NULL;
+		float bestDist = 0.0f;
 		for (size_t i = 0; i < squad.size(); ++i)
 		{
 			Character* c = squad[i];
@@ -199,10 +204,38 @@ namespace
 				o << "  " << c->getName() << " splint need " << score;
 				dbg(o.str());
 			}
-			if (score > 0.0f)
-				return true;
+			if (score <= 0.0f)
+				continue;
+			float d = pos.distance(c->getPosition());
+			if ((inRange && d > maxRange) || (best && d >= bestDist))
+				continue;
+			best = c;
+			bestDist = d;
 		}
-		return false;
+		return best;
+	}
+
+	// O jogo não põe tala sozinho (nem com a tarefa Médico): o mod dá a ordem "Aplicar talas", como
+	// o clique do jogador. Uma ordem por médico e por paciente a cada SPLINT_COOLDOWN ms.
+	const DWORD SPLINT_COOLDOWN = 20000;
+	std::map<Character*, DWORD> lastSplintOrder;
+
+	bool cooling(Character* c, DWORD now)
+	{
+		std::map<Character*, DWORD>::iterator it = lastSplintOrder.find(c);
+		return it != lastSplintOrder.end() && now - it->second < SPLINT_COOLDOWN;
+	}
+
+	void orderSplint(Character* medic, const Need& need, lektor<Character*>& squad)
+	{
+		Character* patient = findPatient(squad, need, medic, true);
+		DWORD now = GetTickCount();
+		if (!patient || cooling(medic, now) || cooling(patient, now))
+			return;
+		lastSplintOrder[medic] = now;
+		lastSplintOrder[patient] = now;
+		medic->addOrder(NULL, SPLINT_ORDER, patient, false, false, patient->getPosition());
+		DebugLog("PackMedic: " + medic->getName() + " ordered to splint " + patient->getName());
 	}
 
 	// Passa um kit do animal pro médico. Se não couber, devolve ao animal.
@@ -239,8 +272,12 @@ namespace
 			dbg(o.str());
 		}
 		if (ownKit)
+		{
+			if (need.kind == NEED_SPLINT)
+				orderSplint(medic, need, squad);
 			return;
-		if (!someoneNeeds(squad, need, medic))
+		}
+		if (!findPatient(squad, need, medic, need.kind == NEED_SPLINT))
 		{
 			if (need.kind == NEED_SPLINT)
 				dbg("  nobody needs a splint");
@@ -296,6 +333,8 @@ namespace
 			o << medic->getName() << " took " << kitName << " (" << need.label << ") from "
 				<< bestAnimal->getName() << " (" << (int)bestDist << " away)";
 			DebugLog("PackMedic: " + o.str());
+			if (need.kind == NEED_SPLINT)
+				orderSplint(medic, need, squad);
 		}
 	}
 

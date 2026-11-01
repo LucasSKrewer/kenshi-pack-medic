@@ -19,7 +19,7 @@ The character goes back to healing on their own. If the kit doesn't fit in their
 | Medic | first aid kits and splint kits |
 | Repair Robots | robot repair kits |
 
-Splint kits go to Medics because the game doesn't let "Splint Injuries" become a permanent job (idea by Meloo on the Workshop).
+Medics also **apply splints** on their own: when someone within `@range` needs one, the medic gets a "Splint Injuries" order, just like your click (at most one order per medic and per patient every 20 seconds). The game doesn't let "Splint Injuries" become a permanent job, so the mod does it for the Medic job (idea by Meloo on the Workshop).
 
 Nothing happens while nobody is hurt, so a medic who also works a medical bench won't drain your garru into a crate.
 

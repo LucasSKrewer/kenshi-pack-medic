@@ -19,7 +19,7 @@ O personagem volta a curar sozinho. Se o kit não couber no inventário dele, fi
 | Médico | kits de primeiros socorros e kits de talas |
 | Reparar robôs | kits de reparo de robô |
 
-O kit de talas vai pro Médico porque o jogo não deixa "Aplicar talas" virar tarefa fixa (ideia do Meloo na Workshop).
+O médico também **aplica a tala** sozinho: quando alguém até `@range` dele precisa, ele recebe a ordem "Aplicar talas", igual ao clique do jogador (no máximo uma ordem por médico e por paciente a cada 20 segundos). O jogo não deixa "Aplicar talas" virar tarefa fixa, então o mod faz isso pra tarefa Médico (ideia do Meloo na Workshop).
 
 Nada acontece enquanto ninguém está ferido, então um médico que também trabalha na mesa médica não esvazia o garru no baú.
 
